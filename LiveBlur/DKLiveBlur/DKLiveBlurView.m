@@ -20,102 +20,110 @@
 
 @synthesize originalImage = _originalImage;
 @synthesize backgroundImageView = _backgroundImageView;
-@synthesize tableView = _tableView;
-@synthesize initialBlurLevel = _initialBlurLevel;
+@synthesize scrollView = _scrollView;
+@synthesize initialBlurRadius = _initialBlurRadius;
 @synthesize backgroundGlassView = _backgroundGlassView;
-@synthesize initialGlassLevel = _initialGlassLevel;
+@synthesize initialGlassRadius = _initialGlassRadius;
 @synthesize isGlassEffectOn = _isGlassEffectOn;
 @synthesize glassColor = _glassColor;
+@synthesize blurLevel = _blurLevel;
 
-- (id)initWithFrame:(CGRect)frame {
+#pragma mark - Initialization
+-(void)commitBasic
+{
+    _blurLevel = 0.0f;
+    _initialBlurRadius = kDKBlurredBackgroundDefaultLevel;
+    _initialGlassRadius = kDKBlurredBackgroundDefaultGlassLevel;
+    _glassColor = kDKBlurredBackgroundDefaultGlassColor;
+    
+    _backgroundImageView = [[UIImageView alloc] initWithFrame: self.bounds];
+    
+    _backgroundImageView.alpha = 0.0;
+    _backgroundImageView.contentMode = UIViewContentModeScaleToFill;
+    _backgroundImageView.backgroundColor = [UIColor clearColor];
+    
+    _backgroundImageView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+    
+    [self addSubview: _backgroundImageView];
+    
+    _backgroundGlassView = [[UIView alloc] initWithFrame: self.bounds];
+    
+    _backgroundGlassView.alpha = 0.0;
+    _backgroundGlassView.backgroundColor = kDKBlurredBackgroundDefaultGlassColor;
+    
+    _backgroundGlassView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+    
+    [self addSubview: _backgroundGlassView];
+}
+
+- (id)initWithFrame:(CGRect)frame
+{
     self = [super initWithFrame:frame];
     if (self) {
         // Initialization code
-        
-        _initialBlurLevel = kDKBlurredBackgroundDefaultLevel;
-        _initialGlassLevel = kDKBlurredBackgroundDefaultGlassLevel;
-        _glassColor = kDKBlurredBackgroundDefaultGlassColor;
-
-        _backgroundImageView = [[UIImageView alloc] initWithFrame: self.bounds];
-        
-        _backgroundImageView.alpha = 0.0;
-        _backgroundImageView.contentMode = UIViewContentModeScaleToFill;
-        _backgroundImageView.backgroundColor = [UIColor clearColor];
-
-        [self addSubview: _backgroundImageView];
-        
-        _backgroundGlassView = [[UIView alloc] initWithFrame: self.bounds];
-        
-        _backgroundGlassView.alpha = 0.0;
-        _backgroundGlassView.backgroundColor = kDKBlurredBackgroundDefaultGlassColor;
-                
-        [self addSubview: _backgroundGlassView];
-
+        [self commitBasic];
     }
     return self;
 }
 
-- (void)setGlassColor:(UIColor *)glassColor {
-    _glassColor = glassColor;
-    _backgroundGlassView.backgroundColor = glassColor;
+-(id)initWithCoder:(NSCoder *)aDecoder
+{
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        // Initialization code
+        [self commitBasic];
+    }
+    return self;
 }
 
-- (void)setTableView:(UITableView *)tableView {
-    [_tableView removeObserver: self forKeyPath: @"contentOffset"];
-    
-	_tableView = tableView;
-	
-    [_tableView addObserver: self forKeyPath: @"contentOffset" options: 0 context: nil];
-}
-
-- (UIImage *)blurryImage:(UIImage *)image withBlurLevel:(CGFloat)blur {
-    if ((blur < 0.0f) || (blur > 1.0f)) {
-        blur = 0.5f;
+#pragma mark - Blur Original Image
+- (UIImage *)applyBlurOnImage: (UIImage *)imageToBlur
+                   withRadius:(CGFloat)blurRadius
+{
+    if ((blurRadius <= 0.0f) || (blurRadius > 1.0f)) {
+        blurRadius = 0.5f;
     }
     
-    int boxSize = (int)(blur * 100);
+    int boxSize = (int)(blurRadius * 100);
     boxSize -= (boxSize % 2) + 1;
     
-    CGImageRef img = image.CGImage;
+    CGImageRef rawImage = imageToBlur.CGImage;
     
     vImage_Buffer inBuffer, outBuffer;
     vImage_Error error;
     void *pixelBuffer;
     
-    CGDataProviderRef inProvider = CGImageGetDataProvider(img);
+    CGDataProviderRef inProvider = CGImageGetDataProvider(rawImage);
     CFDataRef inBitmapData = CGDataProviderCopyData(inProvider);
     
-    inBuffer.width = CGImageGetWidth(img);
-    inBuffer.height = CGImageGetHeight(img);
-    inBuffer.rowBytes = CGImageGetBytesPerRow(img);
-    
+    inBuffer.width = CGImageGetWidth(rawImage);
+    inBuffer.height = CGImageGetHeight(rawImage);
+    inBuffer.rowBytes = CGImageGetBytesPerRow(rawImage);
     inBuffer.data = (void*)CFDataGetBytePtr(inBitmapData);
     
-    pixelBuffer = malloc(CGImageGetBytesPerRow(img) * CGImageGetHeight(img));
+    pixelBuffer = malloc(CGImageGetBytesPerRow(rawImage) * CGImageGetHeight(rawImage));
         
     outBuffer.data = pixelBuffer;
-    outBuffer.width = CGImageGetWidth(img);
-    outBuffer.height = CGImageGetHeight(img);
-    outBuffer.rowBytes = CGImageGetBytesPerRow(img);
+    outBuffer.width = CGImageGetWidth(rawImage);
+    outBuffer.height = CGImageGetHeight(rawImage);
+    outBuffer.rowBytes = CGImageGetBytesPerRow(rawImage);
     
     error = vImageBoxConvolve_ARGB8888(&inBuffer, &outBuffer, NULL,
                                        0, 0, boxSize, boxSize, NULL,
                                        kvImageEdgeExtend);
-    
-    
     if (error) {
         NSLog(@"error from convolution %ld", error);
     }
     
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-    CGContextRef ctx = CGBitmapContextCreate(
-                                             outBuffer.data,
+    
+    CGContextRef ctx = CGBitmapContextCreate(outBuffer.data,
                                              outBuffer.width,
                                              outBuffer.height,
                                              8,
                                              outBuffer.rowBytes,
                                              colorSpace,
-                                             CGImageGetBitmapInfo(image.CGImage));
+                                             CGImageGetBitmapInfo(imageToBlur.CGImage));
     
     CGImageRef imageRef = CGBitmapContextCreateImage (ctx);
     UIImage *returnImage = [UIImage imageWithCGImage:imageRef];
@@ -126,14 +134,14 @@
     
     free(pixelBuffer);
     CFRelease(inBitmapData);
-    
-    CGColorSpaceRelease(colorSpace);
     CGImageRelease(imageRef);
     
     return returnImage;
 }
 
-- (void)setOriginalImage:(UIImage *)originalImage {
+#pragma mark - Getter and Setter
+- (void)setOriginalImage:(UIImage *)originalImage
+{
     _originalImage = originalImage;
     
     self.image = originalImage;
@@ -142,26 +150,49 @@
     
     dispatch_async(queue, ^ {
         
-        UIImage *blurredImage = [self blurryImage: self.originalImage withBlurLevel: self.initialBlurLevel];
+        UIImage *blurredImage = [self applyBlurOnImage:_originalImage withRadius:self.initialBlurRadius];
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            
-            self.backgroundImageView.alpha = 0.0;
-            self.backgroundImageView.image = blurredImage;            
+            self.backgroundImageView.alpha = _blurLevel;
+            self.backgroundImageView.image = blurredImage;
         });
     });
-    
-    dispatch_release(queue);
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object
-                        change:(NSDictionary *)change context:(void *)context {
+- (void)setBlurLevel:(CGFloat)aBlurLevel
+{
+    _blurLevel = aBlurLevel;
+    self.backgroundImageView.alpha = _blurLevel;
     
-    self.backgroundImageView.alpha = self.tableView.contentOffset.y / (2 * self.frame.size.height / 3);
-    
-    if (self.isGlassEffectOn == YES) {
-        self.backgroundGlassView.alpha = MAX(0.0, MIN(self.backgroundImageView.alpha - self.initialGlassLevel, self.initialGlassLevel));
+    if (self.isGlassEffectOn) {
+        self.backgroundGlassView.alpha = MAX(0.0, MIN(self.backgroundImageView.alpha - self.initialGlassRadius, self.initialGlassRadius));
     }
+}
+
+- (void)setGlassColor:(UIColor *)glassColor
+{
+    _glassColor = glassColor;
+    _backgroundGlassView.backgroundColor = glassColor;
+}
+
+- (void)setScrollView:(UIScrollView *)scrollView
+{
+    [_scrollView removeObserver: self forKeyPath: @"contentOffset"];
+    
+	_scrollView = scrollView;
+	
+    [_scrollView addObserver: self forKeyPath: @"contentOffset" options: 0 context: nil];
+}
+
+#pragma mark - KVO
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary *)change
+                       context:(void *)context
+{
+    
+    // closer to zero, less blur applied
+    [self setBlurLevel:(self.scrollView.contentOffset.y + self.scrollView.contentInset.top) / (2 * CGRectGetHeight(self.bounds) / 3)];
 }
 
 @end

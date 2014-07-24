@@ -18,8 +18,8 @@
 		0247C425176E02860029BA47 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0247C424176E02860029BA47 /* Default-568h@2x.png */; };
 		0247C42C176E02A00029BA47 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0247C42B176E02A00029BA47 /* Accelerate.framework */; };
 		0247C444176E03530029BA47 /* DKMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0247C443176E03530029BA47 /* DKMainViewController.m */; };
-		0247C447176E04560029BA47 /* DKLiveBlurView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0247C446176E04560029BA47 /* DKLiveBlurView.m */; };
 		0247C44B176E15C00029BA47 /* bg1.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 0247C44A176E15C00029BA47 /* bg1.jpg */; };
+		717EE0BD198166E50086DAA4 /* DKLiveBlurView.m in Sources */ = {isa = PBXBuildFile; fileRef = 717EE0BC198166E50086DAA4 /* DKLiveBlurView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,9 +39,9 @@
 		0247C42B176E02A00029BA47 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		0247C442176E03530029BA47 /* DKMainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKMainViewController.h; sourceTree = "<group>"; };
 		0247C443176E03530029BA47 /* DKMainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DKMainViewController.m; sourceTree = "<group>"; };
-		0247C445176E04560029BA47 /* DKLiveBlurView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKLiveBlurView.h; sourceTree = "<group>"; };
-		0247C446176E04560029BA47 /* DKLiveBlurView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DKLiveBlurView.m; sourceTree = "<group>"; };
 		0247C44A176E15C00029BA47 /* bg1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = bg1.jpg; sourceTree = "<group>"; };
+		717EE0BB198166E50086DAA4 /* DKLiveBlurView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKLiveBlurView.h; sourceTree = "<group>"; };
+		717EE0BC198166E50086DAA4 /* DKLiveBlurView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DKLiveBlurView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +63,7 @@
 			isa = PBXGroup;
 			children = (
 				0247C42D176E02CF0029BA47 /* Images */,
+				717EE0BA198166E50086DAA4 /* DKLiveBlur */,
 				0247C414176E02860029BA47 /* LiveBlur */,
 				0247C40D176E02860029BA47 /* Frameworks */,
 				0247C40C176E02860029BA47 /* Products */,
@@ -95,8 +96,6 @@
 				0247C41E176E02860029BA47 /* DKAppDelegate.m */,
 				0247C442176E03530029BA47 /* DKMainViewController.h */,
 				0247C443176E03530029BA47 /* DKMainViewController.m */,
-				0247C445176E04560029BA47 /* DKLiveBlurView.h */,
-				0247C446176E04560029BA47 /* DKLiveBlurView.m */,
 				0247C415176E02860029BA47 /* Supporting Files */,
 			);
 			path = LiveBlur;
@@ -123,6 +122,15 @@
 			);
 			name = Images;
 			path = LiveBlur/Images;
+			sourceTree = "<group>";
+		};
+		717EE0BA198166E50086DAA4 /* DKLiveBlur */ = {
+			isa = PBXGroup;
+			children = (
+				717EE0BB198166E50086DAA4 /* DKLiveBlurView.h */,
+				717EE0BC198166E50086DAA4 /* DKLiveBlurView.m */,
+			);
+			path = DKLiveBlur;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -195,7 +203,7 @@
 				0247C41B176E02860029BA47 /* main.m in Sources */,
 				0247C41F176E02860029BA47 /* DKAppDelegate.m in Sources */,
 				0247C444176E03530029BA47 /* DKMainViewController.m in Sources */,
-				0247C447176E04560029BA47 /* DKLiveBlurView.m in Sources */,
+				717EE0BD198166E50086DAA4 /* DKLiveBlurView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
